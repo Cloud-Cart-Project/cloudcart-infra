@@ -1,7 +1,6 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -e
 
-# Initialize multiple databases
 echo "Creating multiple databases: auth_db, product_db, cart_db, order_db"
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
