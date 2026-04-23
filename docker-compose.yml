@@ -1,4 +1,4 @@
-services:
+﻿services:
   postgres:
     image: postgres:15-alpine
     container_name: fleetops-postgres
@@ -38,7 +38,7 @@ services:
 
   auth-service:
     build:
-      context: ../cloudcart-auth-service
+      context: ../fleetops-auth-service
       dockerfile: Dockerfile
     container_name: fleetops-auth-service
     environment:
@@ -62,7 +62,7 @@ services:
 
   vehicle-service:
     build:
-      context: ../cloudcart-product-service
+      context: ../fleetops-vehicle-service
       dockerfile: Dockerfile
     container_name: fleetops-vehicle-service
     environment:
@@ -89,7 +89,7 @@ services:
 
   maintenance-service:
     build:
-      context: ../cloudcart-cart-service
+      context: ../fleetops-maintenance-service
       dockerfile: Dockerfile
     container_name: fleetops-maintenance-service
     environment:
@@ -112,7 +112,7 @@ services:
 
   request-service:
     build:
-      context: ../cloudcart-order-service
+      context: ../fleetops-request-service
       dockerfile: Dockerfile
     container_name: fleetops-request-service
     environment:
@@ -141,7 +141,7 @@ services:
 
   frontend:
     build:
-      context: ../cloudcart-frontend
+      context: ../fleetops-frontend
       dockerfile: Dockerfile
     container_name: fleetops-frontend
     ports:
@@ -164,3 +164,4 @@ volumes:
 networks:
   fleetops-network:
     driver: bridge
+
