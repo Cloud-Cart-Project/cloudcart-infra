@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: cloudcart-postgres
+    container_name: fleetops-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - cloudcart-network
+      - fleetops-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
@@ -23,11 +23,11 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: cloudcart-redis
+    container_name: fleetops-redis
     ports:
       - "6379:6379"
     networks:
-      - cloudcart-network
+      - fleetops-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -40,7 +40,7 @@ services:
     build:
       context: ../cloudcart-auth-service
       dockerfile: Dockerfile
-    container_name: cloudcart-auth-service
+    container_name: fleetops-auth-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/auth_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-postgres}
@@ -52,7 +52,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - cloudcart-network
+      - fleetops-network
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
       interval: 30s
@@ -60,13 +60,13 @@ services:
       retries: 5
       start_period: 45s
 
-  product-service:
+  vehicle-service:
     build:
       context: ../cloudcart-product-service
       dockerfile: Dockerfile
-    container_name: cloudcart-product-service
+    container_name: fleetops-vehicle-service
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/product_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/vehicle_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - JWT_SECRET=${JWT_SECRET}
@@ -79,7 +79,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - cloudcart-network
+      - fleetops-network
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
       interval: 30s
@@ -87,13 +87,13 @@ services:
       retries: 5
       start_period: 45s
 
-  cart-service:
+  maintenance-service:
     build:
       context: ../cloudcart-cart-service
       dockerfile: Dockerfile
-    container_name: cloudcart-cart-service
+    container_name: fleetops-maintenance-service
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/cart_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/maintenance_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - JWT_SECRET=${JWT_SECRET}
@@ -102,7 +102,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - cloudcart-network
+      - fleetops-network
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
       interval: 30s
@@ -110,28 +110,28 @@ services:
       retries: 5
       start_period: 45s
 
-  order-service:
+  request-service:
     build:
       context: ../cloudcart-order-service
       dockerfile: Dockerfile
-    container_name: cloudcart-order-service
+    container_name: fleetops-request-service
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/order_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/request_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - JWT_SECRET=${JWT_SECRET}
-      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL:-http://product-service:8080}
-      - CART_SERVICE_URL=${CART_SERVICE_URL:-http://cart-service:8080}
+      - VEHICLE_SERVICE_URL=${VEHICLE_SERVICE_URL:-http://vehicle-service:8080}
+      - MAINTENANCE_SERVICE_URL=${MAINTENANCE_SERVICE_URL:-http://maintenance-service:8080}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
     depends_on:
       postgres:
         condition: service_healthy
-      product-service:
+      vehicle-service:
         condition: service_healthy
-      cart-service:
+      maintenance-service:
         condition: service_healthy
     networks:
-      - cloudcart-network
+      - fleetops-network
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
       interval: 30s
@@ -143,24 +143,24 @@ services:
     build:
       context: ../cloudcart-frontend
       dockerfile: Dockerfile
-    container_name: cloudcart-frontend
+    container_name: fleetops-frontend
     ports:
       - "8080:80"
     depends_on:
       auth-service:
         condition: service_healthy
-      product-service:
+      vehicle-service:
         condition: service_healthy
-      cart-service:
+      maintenance-service:
         condition: service_healthy
-      order-service:
+      request-service:
         condition: service_healthy
     networks:
-      - cloudcart-network
+      - fleetops-network
 
 volumes:
   postgres_data:
 
 networks:
-  cloudcart-network:
+  fleetops-network:
     driver: bridge

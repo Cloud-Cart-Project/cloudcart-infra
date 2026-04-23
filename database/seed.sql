@@ -1,49 +1,50 @@
--- Products seed data for CloudCart
--- Run against product_db
+-- FleetOps Vehicle seed data
+-- Run against vehicle_db
+-- Mixed statuses and near-expiry dates for realistic demo
 
-CREATE TABLE IF NOT EXISTS products (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    category VARCHAR(255) NOT NULL,
-    price NUMERIC(10, 2) NOT NULL,
-    stock INTEGER NOT NULL,
-    image_url VARCHAR(255),
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP
+CREATE TABLE IF NOT EXISTS vehicles (
+    id                  SERIAL PRIMARY KEY,
+    vehicle_number      VARCHAR(20)  NOT NULL UNIQUE,
+    model               VARCHAR(100) NOT NULL,
+    brand               VARCHAR(100) NOT NULL,
+    type                VARCHAR(50)  NOT NULL,
+    status              VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
+    current_mileage     INTEGER      NOT NULL DEFAULT 0,
+    last_service_date   DATE,
+    next_service_date   DATE,
+    next_service_mileage INTEGER,
+    insurance_expiry    DATE,
+    assigned_driver_id  VARCHAR(100),
+    created_at          TIMESTAMP    NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
-INSERT INTO products (name, description, category, price, stock, image_url, created_at, updated_at) VALUES
--- Electronics
-('MacBook Pro 16"', 'Apple M3 Pro chip, 18GB RAM, 512GB SSD', 'Electronics', 199999.00, 25, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', NOW(), NOW()),
-('Sony WH-1000XM5', 'Industry-leading noise cancelling wireless headphones', 'Electronics', 27999.00, 80, 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', NOW(), NOW()),
-('Samsung 4K QLED TV 55"', 'Quantum dot technology, 120Hz refresh rate', 'Electronics', 71999.00, 15, 'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400', NOW(), NOW()),
-('iPhone 15 Pro', '256GB, Titanium frame, A17 Pro chip', 'Electronics', 95999.00, 40, 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400', NOW(), NOW()),
-('iPad Air M2', '11-inch Liquid Retina, 256GB Wi-Fi', 'Electronics', 59999.00, 35, 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400', NOW(), NOW()),
+INSERT INTO vehicles (vehicle_number, model, brand, type, status, current_mileage, last_service_date, next_service_date, next_service_mileage, insurance_expiry, assigned_driver_id) VALUES
+-- Active vehicles — healthy
+('KL07AB1234', 'Innova Crysta',      'Toyota',         'SUV',         'ACTIVE',     45200, '2025-01-10', '2025-07-10', 55000,  '2026-12-31', 'driver1'),
+('KL08CD5678', 'Ace Gold',           'Tata',           'Mini Truck',  'ACTIVE',     31000, '2025-02-15', '2025-08-15', 41000,  '2026-11-15', 'driver2'),
+('KL09EF4321', 'Bolero Plus',        'Mahindra',       'SUV',         'ACTIVE',     62000, '2024-12-01', '2025-06-01', 72000,  '2026-09-30', 'driver3'),
+('KL10GH9876', '407 Truck',          'Ashok Leyland',  'Heavy Truck', 'ACTIVE',     98000, '2025-03-20', '2025-09-20', 108000, '2026-10-20', 'driver4'),
 
--- Fashion
-('Premium Denim Jacket', 'Classic fit, 100% cotton denim', 'Fashion', 7199.00, 120, 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400', NOW(), NOW()),
-('Merino Wool Sweater', 'Lightweight, itch-free merino wool blend', 'Fashion', 10399.00, 75, 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400', NOW(), NOW()),
-('Slim Fit Chinos', 'Stretch comfort, wrinkle-resistant fabric', 'Fashion', 4799.00, 200, 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400', NOW(), NOW()),
-('Classic White Shirt', 'Egyptian cotton, button-down collar', 'Fashion', 3999.00, 150, 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400', NOW(), NOW()),
+-- Vehicles due for service soon (date-based alert)
+('KL11IJ2345', 'Eeco',               'Maruti Suzuki',  'Van',         'ACTIVE',     29500, '2024-10-05', '2025-04-05', 39500,  '2026-08-15', 'driver5'),
+('KL12KL6789', 'Transit Van',        'Ford',           'Van',         'ACTIVE',     74000, '2024-11-20', '2025-05-20', 84000,  '2026-07-01', 'driver6'),
 
--- Shoes
-('Nike Air Max 270', 'Lifestyle shoes with large Max Air unit', 'Shoes', 12000.00, 90, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', NOW(), NOW()),
-('Adidas Ultraboost 23', 'Running shoe with responsive Boost cushioning', 'Shoes', 14400.00, 60, 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400', NOW(), NOW()),
-('Leather Oxford Shoes', 'Genuine calfskin leather, Goodyear welted sole', 'Shoes', 17600.00, 45, 'https://images.unsplash.com/photo-1531310197839-ccf54634509e?w=400', NOW(), NOW()),
+-- Insurance expiring within 30 days (demo alert cards)
+('KL13MN3456', 'City',               'Honda',          'Sedan',       'ACTIVE',     22000, '2025-01-01', '2025-07-01', 32000,  (CURRENT_DATE + INTERVAL '12 days')::DATE, 'driver7'),
+('KL14OP7890', 'Dzire',              'Maruti Suzuki',  'Sedan',       'ACTIVE',     18500, '2025-02-10', '2025-08-10', 28500,  (CURRENT_DATE + INTERVAL '7 days')::DATE,  'driver8'),
+('KL15QR1234', 'Swift',              'Maruti Suzuki',  'Hatchback',   'ACTIVE',     15000, '2025-03-15', '2025-09-15', 25000,  (CURRENT_DATE + INTERVAL '22 days')::DATE, 'driver9'),
 
--- Watches
-('Apple Watch Series 9', '45mm GPS + Cellular, Midnight Aluminum', 'Watches', 39999.00, 50, 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400', NOW(), NOW()),
-('Seiko Prospex Diver', 'Automatic movement, 200m water resistance', 'Watches', 36000.00, 30, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', NOW(), NOW()),
-('Citizen Eco-Drive', 'Solar-powered, perpetual calendar', 'Watches', 23999.00, 40, 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400', NOW(), NOW()),
+-- In service (currently under maintenance)
+('KL16ST5678', 'Duster',             'Renault',        'SUV',         'IN_SERVICE', 53000, '2025-01-25', '2025-07-25', 63000,  '2026-06-30', 'driver10'),
+('KL17UV9012', 'Super Carry',        'Maruti Suzuki',  'Mini Truck',  'IN_SERVICE', 44000, '2024-12-10', '2025-06-10', 54000,  '2026-05-15', 'driver11'),
 
--- Home
-('Dyson V15 Detect', 'Laser dust detection, up to 60 min runtime', 'Home', 59999.00, 25, 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400', NOW(), NOW()),
-('Philips Hue Starter Kit', '4 smart bulbs + bridge, 16M colors', 'Home', 15999.00, 60, 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', NOW(), NOW()),
-('Nespresso Vertuo Next', 'Coffee and espresso machine, 5 cup sizes', 'Home', 14399.00, 45, 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400', NOW(), NOW()),
+-- Breakdown (emergency)
+('KL18WX3456', 'BharatBenz 1015R',   'BharatBenz',     'Heavy Truck', 'BREAKDOWN',  87000, '2024-09-01', '2025-03-01', 97000,  '2026-04-30', 'driver12'),
 
--- Books
-('Clean Code', 'A Handbook of Agile Software Craftsmanship by Robert C. Martin', 'Books', 2879.00, 300, 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=400', NOW(), NOW()),
-('The Pragmatic Programmer', '20th Anniversary Edition — Your Journey to Mastery', 'Books', 3999.00, 250, 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400', NOW(), NOW()),
-('Designing Data-Intensive Applications', 'The Big Ideas Behind Reliable, Scalable, and Maintainable Systems', 'Books', 4799.00, 200, 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400', NOW(), NOW()),
-('Kubernetes in Action', 'Second Edition — Deploy and manage containers at scale', 'Books', 4399.00, 175, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', NOW(), NOW());
+-- High mileage — service overdue (mileage-based alert)
+('KL19YZ7890', 'Hiace',              'Toyota',         'Van',         'ACTIVE',     112000,'2024-08-15', '2025-02-15', 100000, '2026-03-31', 'driver13'),
+
+-- Retired vehicles
+('KL20AB1111', 'Tempo Traveller',    'Force',          'Van',         'RETIRED',    210000,'2023-06-01', NULL,         NULL,   '2024-12-31', NULL),
+('KL21CD2222', 'Leyland Viking',     'Ashok Leyland',  'Bus',         'RETIRED',    315000,'2022-12-01', NULL,         NULL,   '2024-06-30', NULL);
