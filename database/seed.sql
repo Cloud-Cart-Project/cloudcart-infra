@@ -1,6 +1,18 @@
 -- Products seed data for CloudCart
 -- Run against product_db
 
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(255) NOT NULL,
+    price NUMERIC(10, 2) NOT NULL,
+    stock INTEGER NOT NULL,
+    image_url VARCHAR(255),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP
+);
+
 INSERT INTO products (name, description, category, price, stock, image_url, created_at, updated_at) VALUES
 -- Electronics
 ('MacBook Pro 16"', 'Apple M3 Pro chip, 18GB RAM, 512GB SSD', 'Electronics', 199999.00, 25, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', NOW(), NOW()),
