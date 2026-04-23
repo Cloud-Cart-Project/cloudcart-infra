@@ -9,6 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/seed.sql
     ports:
       - "5432:5432"
     networks:

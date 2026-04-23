@@ -11,3 +11,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 EOSQL
 
 echo "Multiple databases created successfully."
+
+echo "Seeding product_db..."
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "product_db" -f /docker-entrypoint-initdb.d/seed.sql
+echo "Seeding completed."
