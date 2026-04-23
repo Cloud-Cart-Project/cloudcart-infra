@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/sh
 set -e
 
 echo "Creating multiple databases: auth_db, product_db, cart_db, order_db"
